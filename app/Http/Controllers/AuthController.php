@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\DB;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\UserDetail;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    use ApiResponseTrait;
+
     public function register(Request $request)
     {
         $request->validate([
@@ -45,10 +49,10 @@ class AuthController extends Controller
             });
         } catch (\Throwable $th) {
             \Log::error('User registration failed', ['error' => $th->getMessage()]);
-            return response()->json(['message' => 'User registration failed!', 'error' => $th->getMessage()], 500);
+            return $this->errorResponse('User registration failed!', $th->getMessage(), 500);
         }
 
-        return response()->json(['message' => 'User registered successfully!'], 201);
+        return $this->successResponse([], 'User registered successfully!', 201);
     }
 
     public function login(Request $request)
@@ -62,9 +66,30 @@ class AuthController extends Controller
 
         if (Auth::attempt([$field => $request->login, 'password' => $request->password])) {
             $user = Auth::user();
+
+            if (!$user->is_active) {
+                Auth::logout();
+                return $this->errorResponse('Your account is not activated. Please contact support.', 'account_inactive', 403);
+            }
+
             $token = $user->createToken('gonaMarket')->plainTextToken;
-            return response()->json(['token' => $token, 'user' => $user]);
+
+            return $this->successResponse([
+                'token' => $token,
+                'user' => [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    'phone_number' => $user->phone_number,
+                ]
+            ], 'Login successful!', 200);
         }
-        return response()->json(['message' => 'Invalid credentials'], 401);
+
+        return $this->errorResponse('Invalid credentials', 'invalid_credentials', 401);
+    }
+
+    public function logout()
+    {
+        Auth::logout();
+        return $this->successResponse([], 'Logged out successfully.', 200);
     }
 }
