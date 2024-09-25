@@ -18,4 +18,14 @@ class UserDetail extends Model
         'lga_id',
         'address',
     ];
+
+    public function state()
+    {
+        return $this->belongsTo(State::class, 'state_id');
+    }
+
+    public function lga()
+    {
+        return $this->belongsTo(LocalGovernmentArea::class, 'lga_id');
+    }
 }

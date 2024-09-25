@@ -7,6 +7,7 @@ use App\Http\Controllers\StateController;
 use App\Http\Controllers\LGAController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 
 Route::get('/countries', [CountryController::class, 'index']);
 Route::get('/states', [StateController::class, 'index']);
@@ -21,6 +22,11 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 });
 
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:api')->group(function () {
+    Route::controller(UserController::class)->group(function () {
+        Route::get('/users', 'index');
+        Route::get('/user/{id}', 'show');
+        Route::get('/me', 'me');
+    });
 });
+

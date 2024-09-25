@@ -47,12 +47,20 @@ class AuthController extends Controller
                     'address' => $request->address,
                 ]);
             });
+
+            return $this->successResponse([], 'User registered successfully!', 201);
+        } catch (\Illuminate\Database\QueryException $e) {
+            \Log::error('User registration failed', ['error' => $e->getMessage()]);
+
+            if ($e->getCode() == 42) {
+                return $this->errorResponse('Database table not found. Please check your database configuration.', 'table_not_found', 500);
+            }
+
+            return $this->errorResponse('An unexpected error occurred during registration. Please try again later.', 'unexpected_error', 500);
         } catch (\Throwable $th) {
             \Log::error('User registration failed', ['error' => $th->getMessage()]);
             return $this->errorResponse('User registration failed!', $th->getMessage(), 500);
         }
-
-        return $this->successResponse([], 'User registered successfully!', 201);
     }
 
     public function login(Request $request)
@@ -64,31 +72,37 @@ class AuthController extends Controller
 
         $field = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone_number';
 
-        if (!$token = auth('api')->attempt([$field => $request->login, 'password' => $request->password])) {
-            return $this->errorResponse('Invalid credentials', 'invalid_credentials', 401);
+        try {
+            if (!$token = auth('api')->attempt([$field => $request->login, 'password' => $request->password])) {
+                return $this->errorResponse('Invalid credentials', 'invalid_credentials', 401);
+            }
+
+            $user = auth('api')->user()->load('userDetail');
+
+            if (!$user->is_active) {
+                auth('api')->logout();
+                return $this->errorResponse('Your account is not activated. Please contact support.', 'account_inactive', 403);
+            }
+
+            return $this->successResponse([
+                'access_token' => $token,
+                'expires_in' => auth('api')->factory()->getTTL() * 60,
+                'user_data' => [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    'phone_number' => $user->phone_number,
+                    'user' => array_merge($user->toArray()),
+                ]
+            ], 'Login successful!', 200);
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 42) {
+                return $this->errorResponse('User table not found. Please check your database configuration.', 'table_not_found', 500);
+            }
+
+            return $this->errorResponse('An unexpected error occurred. Please try again later.', 'unexpected_error', 500);
         }
-
-        // $user = auth('api')->user();
-        $user = auth('api')->user()->load('userDetail');
-
-        if (!$user->is_active) {
-            auth('api')->logout();
-            return $this->errorResponse('Your account is not activated. Please contact support.', 'account_inactive', 403);
-        }
-
-        return $this->successResponse([
-            'access_token' => $token,
-            'expires_in' => auth('api')->factory()->getTTL() * 60,
-            'user_data' => [
-                'id' => $user->id,
-                'email' => $user->email,
-                'phone_number' => $user->phone_number,
-                'user' => array_merge($user->toArray()),
-            ]
-        ], 'Login successful!', 200);
     }
-
-
 
     public function logout()
     {
