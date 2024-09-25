@@ -86,7 +86,7 @@ class AuthController extends Controller
 
             return $this->successResponse([
                 'access_token' => $token,
-                'expires_in' => auth('api')->factory()->getTTL() * 60,
+                'expires_in' => auth('api')->factory()->getTTL() * 360,
                 'user_data' => [
                     'id' => $user->id,
                     'email' => $user->email,
