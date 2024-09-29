@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\UserDetail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\UserResource;
 
 class AuthController extends Controller
 {
@@ -87,12 +88,7 @@ class AuthController extends Controller
             return $this->successResponse([
                 'access_token' => $token,
                 'expires_in' => auth('api')->factory()->getTTL() * 360,
-                'user_data' => [
-                    'id' => $user->id,
-                    'email' => $user->email,
-                    'phone_number' => $user->phone_number,
-                    'user' => array_merge($user->toArray()),
-                ]
+                'user' => new UserResource($user),
             ], 'Login successful!', 200);
 
         } catch (\Illuminate\Database\QueryException $e) {
