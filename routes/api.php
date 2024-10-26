@@ -8,6 +8,8 @@ use App\Http\Controllers\LGAController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\PaymentController;
 
 Route::get('/countries', [CountryController::class, 'index']);
 Route::get('/states', [StateController::class, 'index']);
@@ -27,6 +29,17 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/users', 'index');
         Route::get('/user/{id}', 'show');
         Route::get('/me', 'me');
+    });
+
+    Route::controller(CartController::class)->group(function () {
+        Route::get('/cart', 'index');
+        Route::post('/cart', 'store');
+    });
+
+    Route::controller(PaymentController::class)->prefix('payment')->group(function () {
+        Route::post('charge-card-monnify', 'cardChargeMonnify');
+        Route::get('pay-by-card-monnify', 'payByCardMonnify');
+        Route::post('pay-by-transfer-monnify', 'payByTransferMonnify');
     });
 });
 

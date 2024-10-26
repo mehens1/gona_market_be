@@ -20,6 +20,8 @@ class UserResource extends JsonResource
             'phone_number' => $this->phone_number,
             'first_name' => $this->userDetail->first_name ?? null,
             'last_name' => $this->userDetail->last_name ?? null,
+            'address' => $this->userDetail->address ?? null,
+            'image_url' => $this->userDetail->image_url ?? null,
             'state' => $this->userDetail->state ? $this->userDetail->state : null,
             'lga' => $this->userDetail->lga ? $this->userDetail->lga : null,
         ];

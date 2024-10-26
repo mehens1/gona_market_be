@@ -16,16 +16,6 @@ class ProductResource extends JsonResource
      */
     public function toArray($request)
     {
-        $guage = $this->whenLoaded('guage') ? new GuageResource($this->guage) : null;
-
-        // Debug statements
-        if (is_null($guage)) {
-            Log::debug('Guage is null');
-        } else {
-            Log::debug('Guage ID: ' . $guage->id);
-        }
-
-
         return [
             'id' => $this->id,
             'title' => $this->title,
@@ -33,9 +23,9 @@ class ProductResource extends JsonResource
             'description' => $this->description,
             'image' => $this->image,
             'qtyAvailable' => $this->qty_available,
-            'category' => $this->category,
+            'category' => $this->whenLoaded('category') ? new CategoryResource($this->category) : null,
             'guage' => $this->whenLoaded('guage') ? new GuageResource($this->guage) : null,
-            'addedBy' => $this->added_by,
+            'addedBy' => $this->whenLoaded('added_by') ? new UserResource($this->added_by) : null,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
         ];

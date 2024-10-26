@@ -9,8 +9,18 @@ class Product extends Model
 {
     use HasFactory;
 
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category', 'id');
+    }
+
     public function guage()
     {
         return $this->belongsTo(Guage::class, 'guage', 'id');
+    }
+
+    public function added_by()
+    {
+        return $this->belongsTo(User::class, 'added_by');
     }
 }
