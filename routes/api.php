@@ -11,6 +11,28 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\PaymentController;
 
+
+
+Route::get('/optimize', function () {
+    \Artisan::call('optimize');
+    return 'Application optimized successfully!';
+});
+
+Route::get('/migrate', function () {
+    \Artisan::call('migrate');
+    return 'Database migrated successfully!';
+});
+
+Route::get('/migrate-force', function () {
+    \Artisan::call('migrate', ['--force' => true]);
+    return 'Database migrated with force!';
+});
+
+Route::get('/seed', function () {
+    \Artisan::call('db:seed');
+    return 'Database seeded successfully!';
+});
+
 Route::get('/countries', [CountryController::class, 'index']);
 Route::get('/states', [StateController::class, 'index']);
 Route::get('/lga', [LGAController::class, 'index']);
