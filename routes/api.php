@@ -12,7 +12,6 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\PaymentController;
 
 
-
 Route::get('/optimize', function () {
     \Artisan::call('optimize');
     return 'Application optimized successfully!';
@@ -47,6 +46,8 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 
 
 Route::middleware('auth:api')->group(function () {
+    Route::post('/product', [ProductController::class, 'index']);
+
     Route::controller(UserController::class)->group(function () {
         Route::get('/users', 'index');
         Route::get('/user/{id}', 'show');
