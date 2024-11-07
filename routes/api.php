@@ -11,6 +11,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\GuageController;
 
 
 Route::get('/optimize', function () {
@@ -47,6 +48,7 @@ Route::get('/lga/{state}', [LGAController::class, 'state']);
 
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/guages', [GuageController::class, 'index']);
 
 Route::controller(AuthController::class)->prefix('auth')->group(function () {
     Route::post('/register', 'register');
