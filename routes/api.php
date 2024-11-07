@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\CategoryController;
 
 
 Route::get('/optimize', function () {
@@ -27,6 +28,13 @@ Route::get('/migrate-force', function () {
     return 'Database migrated with force!';
 });
 
+Route::get('/reset-migrations', function () {
+    Artisan::call('migrate:reset', ['--force' => true]);
+    Artisan::call('migrate', ['--force' => true]);
+    Artisan::call('db:seed', ['--force' => true]);
+    return 'Migrations reset, database migrated, and seeded successfully!';
+});
+
 Route::get('/seed', function () {
     \Artisan::call('db:seed');
     return 'Database seeded successfully!';
@@ -38,6 +46,7 @@ Route::get('/lga', [LGAController::class, 'index']);
 Route::get('/lga/{state}', [LGAController::class, 'state']);
 
 Route::get('/products', [ProductController::class, 'index']);
+Route::get('/categories', [CategoryController::class, 'index']);
 
 Route::controller(AuthController::class)->prefix('auth')->group(function () {
     Route::post('/register', 'register');
@@ -46,7 +55,12 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 
 
 Route::middleware('auth:api')->group(function () {
-    Route::post('/product', [ProductController::class, 'index']);
+
+    Route::controller(ProductController::class)->group(function () {
+        Route::post('/product', 'index');
+        Route::get('/my-products', 'myProducts');
+        Route::post('/upload-product', 'uploadProduct');
+    });
 
     Route::controller(UserController::class)->group(function () {
         Route::get('/users', 'index');
