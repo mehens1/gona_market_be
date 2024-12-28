@@ -24,6 +24,7 @@ return new class extends Migration
             $table->foreign('guage')->references('id')->on('guages')->onDelete('cascade');
             $table->bigInteger('added_by')->unsigned()->index()->nullable();
             $table->foreign('added_by')->references('id')->on('users')->onDelete('cascade');
+            $table->enum('status', [0, 1])->default(0);
             $table->timestamps();
         });
     }

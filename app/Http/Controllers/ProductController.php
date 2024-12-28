@@ -34,7 +34,7 @@ class ProductController extends Controller
     public function myProducts(Request $request) {
         $user = $request->user()->id;
         $products = Product::where('added_by', $user)->with(['guage', 'category', 'added_by.userDetail'])->get();
-        return $this->successResponse([$products], 'User Store Products fetched successfully successfully!', 201);
+        return $this->successResponse([$products], 'User Store Products fetched successfully successfully!', 200);
     }
 
     public function uploadProduct(Request $request)
