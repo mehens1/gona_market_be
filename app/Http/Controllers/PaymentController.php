@@ -79,35 +79,59 @@ class PaymentController extends Controller
             'Content-Type' => 'application/json',
         ])->post("{$MONNIFY_BASE_URL}/v1/merchant/cards/charge", $cardChargeDdata);
 
-
         if ($response->successful()) {
+
             $responseBody = $response['responseBody'];
 
-            if ($responseBody['status'] === "FAILED") {
+            if ($responseBody['status'] == "FAILED") {
                 return $this->errorResponse('Error: ', $responseBody['message'], 500);
             }
 
             if ($responseBody['status'] === "SUCCESS") {
                 return $this->submitItems($user, $request->items, $responseBody);
             }
-        }
 
+            if (isset($responseBody) && $responseBody['status'] == "OTP_AUTHORIZATION_REQUIRED") {
 
-        $responseData = $response->json();
+                \Log::debug("message 1");
+                \Log::debug($responseBody);
 
-        if ($responseData['requestSuccessful'] && isset($responseData['responseBody']['status'])) {
-            $status = $responseData['responseBody']['status'];
+                // [2025-03-11 03:04:36] local.DEBUG: array (
+                //     'status' => 'OTP_AUTHORIZATION_REQUIRED',
+                //     'message' => 'Successful',
+                //     'otpData' =>
+                //     array (
+                //       'message' => 'Successful',
+                //       'transactionReference' => '000001043764',
+                //       'responseCode' => '00',
+                //       'amount' => '150.00',
+                //     ),
+                //     'transactionReference' => 'MNFY|73|20250311040433|001265',
+                //     'paymentReference' => 'OO3KEXTHM3UJ1NOYBOH3',
+                //     'authorizedAmount' => 150.0,
+                //   )
 
-            if ($status === "OTP_AUTHORIZATION_REQUIRED") {
+                // if( !(isset($responseBody['otpData']['id']))    ) {
+                //     \Log::debug("message 2");
+                //     return $this->errorResponse('Card not validating data, if this problem persist, kindly change card or try another bank!', null, 417);
+                // }
 
-                if( !(isset($responseData['responseBody']['otpData']['id']))    ) {
-                    return $this->errorResponse('Card not validating data, if this problem persist, kindly change card or try another bank!', null, 417);
+                if (!isset($responseBody['otpData']) || !isset($responseBody['otpData']['id'])) {
+                    \Log::debug("message 2 - ID not found in otpData");
+                    return $this->errorResponse('Card not validating data, if this problem persists, kindly change card or try another bank!', null, 417);
                 }
 
-                $otpMessage = $responseData['responseBody']['message'] ?? 'OTP authorization required.';
-                $otpData = $responseData['responseBody']['otpData'] ?? '';
-                $tokenId = $responseData['responseBody']['otpData']['id'] ?? '';
-                $transactionReference = $responseData['responseBody']['transactionReference'] ?? null;
+
+
+                \Log::debug("message 3");
+                \Log::debug($responseBody);
+
+                $otpMessage = $responseBody['message'] ?? 'OTP authorization required.';
+                $otpData = $responseBody['otpData'] ?? '';
+                $tokenId = $responseBody['otpData']['id'] ?? '';
+                $transactionReference = $responseBody['transactionReference'] ?? null;
+
+                \Log::debug("message 4");
 
                 return response()->json([
                     'success' => false,
@@ -118,6 +142,9 @@ class PaymentController extends Controller
                 ]);
             }
         }
+
+        \Log::debug("message 5");
+        $responseBody = $response->json();
 
         $res = $response->json();
         $message = $res['responseBody']['message'] ?? null;
