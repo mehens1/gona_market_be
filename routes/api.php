@@ -79,6 +79,8 @@ Route::middleware('auth:api')->group(function () {
         Route::post('charge-card-monnify', 'cardChargeMonnify');
         Route::get('pay-by-card-monnify', 'payByCardMonnify');
         Route::post('pay-by-transfer-monnify', 'payByTransferMonnify');
+
+        Route::post('autorized-otp', 'authorizedOTP');
     });
 });
 
