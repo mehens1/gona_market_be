@@ -12,34 +12,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\GuageController;
-
-
-Route::get('/optimize', function () {
-    \Artisan::call('optimize');
-    return 'Application optimized successfully!';
-});
-
-Route::get('/migrate', function () {
-    \Artisan::call('migrate');
-    return 'Database migrated successfully!';
-});
-
-Route::get('/migrate-force', function () {
-    \Artisan::call('migrate', ['--force' => true]);
-    return 'Database migrated with force!';
-});
-
-Route::get('/reset-migrations', function () {
-    Artisan::call('migrate:reset', ['--force' => true]);
-    Artisan::call('migrate', ['--force' => true]);
-    Artisan::call('db:seed', ['--force' => true]);
-    return 'Migrations reset, database migrated, and seeded successfully!';
-});
-
-Route::get('/seed', function () {
-    \Artisan::call('db:seed');
-    return 'Database seeded successfully!';
-});
+use App\Http\Controllers\OrderController;
 
 Route::get('/countries', [CountryController::class, 'index']);
 Route::get('/states', [StateController::class, 'index']);
@@ -54,7 +27,6 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
     Route::post('/register', 'register');
     Route::post('/login', 'login');
 });
-
 
 Route::middleware('auth:api')->group(function () {
 
@@ -82,5 +54,13 @@ Route::middleware('auth:api')->group(function () {
 
         Route::post('autorized-otp', 'authorizedOTP');
     });
+
+    Route::controller(OrderController::class)->prefix('orders')->group(function () {
+        Route::get('/', 'index');
+        Route::get('/my-orders', 'myOrders');
+        Route::get('/{id}', 'show');
+    });
+
+
 });
 
