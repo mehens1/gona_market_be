@@ -18,12 +18,13 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'email' => $this->email,
             'phone_number' => $this->phone_number,
-            'first_name' => $this->userDetail->first_name ?? null,
-            'last_name' => $this->userDetail->last_name ?? null,
-            'address' => $this->userDetail->address ?? null,
-            'image_url' => $this->userDetail->image_url ?? null,
-            'state' => $this->userDetail->state ? $this->userDetail->state : null,
-            'lga' => $this->userDetail->lga ? $this->userDetail->lga : null,
+            'is_active' => $this->is_active,
+            'first_name' => optional($this->userDetail)->first_name,
+            'last_name' => optional($this->userDetail)->last_name,
+            'address' => optional($this->userDetail)->address,
+            'image_url' => optional($this->userDetail)->image_url,
+            'state' => optional($this->userDetail)->state,
+            'lga' => optional($this->userDetail)->lga,
         ];
     }
 }
