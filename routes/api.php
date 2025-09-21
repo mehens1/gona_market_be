@@ -40,6 +40,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/users', 'index');
         Route::get('/user/{id}', 'show');
         Route::get('/me', 'me');
+        Route::patch('/update-user-status', 'updateUserStatus');
     });
 
     Route::controller(CartController::class)->group(function () {
@@ -60,7 +61,4 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/my-orders', 'myOrders');
         Route::get('/{id}', 'show');
     });
-
-
 });
-
